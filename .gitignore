@@ -3,3 +3,4 @@ data/*.csv
 .DS_Store
 */__pycache__
 data/cache
+venv/*

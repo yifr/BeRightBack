@@ -11,7 +11,7 @@ def get_conversations(data_dir):
         for filename in filenames:
             if filename.endswith('.json'):
                 fpath = os.path.join(dirpath, filename)
-                with open(fpath, encoding='utf-16') as f:
+                with open(fpath, encoding='utf-8') as f:
                     conversation = json.load(f)
                     yield(conversation)
 
@@ -28,7 +28,7 @@ def json_to_df(conversation, target_name, df):
     if len(conversation.get('participants', [])) > 2:
         return df
     
-    talking_to = conversation['participants'][0] 
+    talking_to = conversation['participants'][0]['name'] 
     message = ''
     response = ''
     for text in reversed(conversation.get('messages')):
@@ -56,13 +56,19 @@ def json_to_df(conversation, target_name, df):
         
     return df
 
-def process_data(data_dir='data/inbox', target='Yoni Friedman', outfile='data/data_clean.csv'):
+def process_data(data_dir='data/inbox', target='Yoni Friedman', outfile='data/data_clean.csv', overwrite=False):
+    if overwrite == False and os.path.exists(outfile):
+        print('Loading existing data...')
+        df = pd.read_csv(outfile)
+        print(df.info(), '\nExample record:', df['response'][6])
+        return df
+
     df = pd.DataFrame(columns=['message', 'response', 'talking_to'])
 
-    for conversation in tqdm(get_conversations(data_dir)):
+    for conversation in tqdm(get_conversations(data_dir), desc='Processing Messages'):
         df = json_to_df(conversation, target, df)
 
-    print(df.info())
+    print(df.info(), '\nExample record:', df['response'][6])
     df.to_csv(outfile)
     
     return df

@@ -28,8 +28,9 @@ class Conversations(Dataset):
         else:
             logger.info('Creating features from dataset file at %s' % directory)
             self.records = []
-            for i in range(len(conversation_df.index)):
-                record = self.create_record(i, conversation_df)
+            n_context = 0
+            for i in range(n_context, len(conversation_df.index)):
+                record = self.create_record(i, conversation_df, n_context=n_context)
                 self.records.append(record)
             
             logger.info("Saving features into cached file %s", cached_features_file)
@@ -40,15 +41,14 @@ class Conversations(Dataset):
     def create_record(self, idx, df, n_context=6):
         """
         Format record as response + n_context - 1 messages of previous context.
-        Between each message we'll append an "end of message" token
+        Between each message we'll append an "end of sentence" token
+        return tokenized record
         """
-        tokenizer = self.tokenizer
-        record = ''
-        for i in range(n_context / 2):
-            record = df['response'][idx - i] + tokenizer.eos_token_id + record
-            record = df['message'][idx - i] + tokenizer.eos_token_id + record
-
-        return tokenizer.encode(record)
+        tokenizer = self.tokenizer        
+        resp = df['response'].iloc[idx]
+        msg = df['message'].iloc[idx]
+        record = tokenizer.encode(msg) + [tokenizer.eos_token_id] + tokenizer.encode(resp) + [tokenizer.eos_token_id]
+        return record
 
     def __len__(self):
         return len(self.records)
@@ -56,8 +56,9 @@ class Conversations(Dataset):
     def __getitem__(self, index):
         return torch.tensor(self.records[index], dtype=torch.long)
 
-def get_train_test(tokenizer, args, data_dir='data/inbox', target='Yoni Friedman'):
-    all_data = process_data.process_data(data_dir=data_dir, target=target)
+def get_train_test(tokenizer, args, data_dir='data/inbox', target='Yoni Friedman', outfile='data/data_clean.csv'):
+    all_data = process_data.process_data(data_dir=data_dir, target=target, outfile=outfile)
+    
     train_df, test_df = train_test_split(all_data, test_size=0.2)
     train_features = Conversations(train_df, tokenizer, args)
     test_features = Conversations(test_df, tokenizer, args)

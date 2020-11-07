@@ -10,8 +10,8 @@ class Args():
         self.do_train = True
         self.do_eval = True
         self.evaluate_during_training = False
-        self.per_gpu_train_batch_size = 4
-        self.per_gpu_eval_batch_size = 4
+        self.per_gpu_train_batch_size = 1
+        self.per_gpu_eval_batch_size = 1
         self.gradient_accumulation_steps = 1
         self.learning_rate = 5e-5
         self.weight_decay = 0.0
@@ -24,7 +24,7 @@ class Args():
         self.save_steps = 3500
         self.save_total_limit = None
         self.eval_all_checkpoints = False
-        self.no_cuda = False
+        self.no_cuda = True
         self.overwrite_output_dir = True
         self.overwrite_cache = True
         self.should_continue = False
@@ -32,3 +32,5 @@ class Args():
         self.local_rank = -1
         self.fp16 = False
         self.fp16_opt_level = 'O1'
+        self.device = 'cpu' # or 'cuda' for GPU
+        self.n_gpu = 1 

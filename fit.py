@@ -59,6 +59,8 @@ from transformers import (
     get_linear_schedule_with_warmup,
 )
 
+from torch.utils.data import DataLoader, Dataset, RandomSampler, SequentialSampler
+
 try:
     from torch.utils.tensorboard import SummaryWriter
 except ImportError:
@@ -132,7 +134,7 @@ def train(args, train_dataset, model: PreTrainedModel, tokenizer: PreTrainedToke
             return pad_sequence(examples, batch_first=True)
         return pad_sequence(examples, batch_first=True, padding_value=tokenizer.pad_token_id)
 
-    train_sampler = RandomSampler(train_dataset) if args.local_rank == -1 else DistributedSampler(train_dataset)
+    train_sampler = RandomSampler(train_dataset) 
     train_dataloader = DataLoader(
         train_dataset, sampler=train_sampler, batch_size=args.train_batch_size, collate_fn=collate, drop_last = True
     )
@@ -253,13 +255,6 @@ def train(args, train_dataset, model: PreTrainedModel, tokenizer: PreTrainedToke
                 global_step += 1
 
                 if args.local_rank in [-1, 0] and args.logging_steps > 0 and global_step % args.logging_steps == 0:
-                    # Log metrics
-                    if (
-                        args.local_rank == -1 and args.evaluate_during_training
-                    ):  # Only evaluate when single GPU otherwise metrics may not average well
-                        results = evaluate(args, model, tokenizer)
-                        for key, value in results.items():
-                            tb_writer.add_scalar("eval_{}".format(key), value, global_step)
                     tb_writer.add_scalar("lr", scheduler.get_lr()[0], global_step)
                     tb_writer.add_scalar("loss", (tr_loss - logging_loss) / args.logging_steps, global_step)
                     logging_loss = tr_loss
@@ -380,9 +375,8 @@ def main():
         )
 
     # Setup CUDA, GPU & distributed training
-    device = torch.device("cuda")
-    args.n_gpu = torch.cuda.device_count()
-    args.device = device
+    device = torch.device(args.device)
+    args.n_gpu = args.n_gpu
 
     # Setup logging
     logging.basicConfig(
@@ -459,7 +453,7 @@ def main():
 
             model = AutoModelWithLMHead.from_pretrained(checkpoint)
             model.to(args.device)
-            result = evaluate(args, model, tokenizer, eval_dataset, prefix=prefix)
+            result = evaluate(args, model, tokenizer, test_dataset, prefix=prefix)
             result = dict((k + "_{}".format(global_step), v) for k, v in result.items())
             results.update(result)
 
