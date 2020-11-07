@@ -17,8 +17,10 @@ for step in range(int(steps)):
     user_input = input('>>> User: ')
     new_user_input_ids = tokenizer.encode(user_input + tokenizer.eos_token, return_tensors='pt')
     bot_input_ids = torch.cat([chat_history_ids, new_user_input_ids], dim=-1) if step > 0 else new_user_input_ids
+    # truncate the input ids to last 250
+    bot_input_ids = bot_input_ids[:, -249:]
     chat_history_ids = model.generate(
-        bot_input_ids, max_length=200,
+        bot_input_ids, max_length=250,
         pad_token_id=tokenizer.eos_token_id,
         no_repeat_ngram_size=3,
         do_sample=True,
