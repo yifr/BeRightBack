@@ -1,2 +1,3 @@
 data/inbox/*
-.vscode
+data/*.csv
+.DS_Store
