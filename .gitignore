@@ -1,6 +1,7 @@
 data/inbox/*
 data/*.csv
 .DS_Store
+__pycache__
 */__pycache__
 data/cache
 venv/*
