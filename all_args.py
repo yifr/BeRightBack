@@ -2,16 +2,16 @@ class Args():
     def __init__(self):
         self.output_dir = 'fine-tuned'
         self.model_type = 'gpt2'
-        self.model_name_or_path = 'microsoft/DialoGPT-large'
-        self.config_name = 'microsoft/DialoGPT-large'
-        self.tokenizer_name = 'microsoft/DialoGPT-large'
+        self.model_name_or_path = 'microsoft/DialoGPT-small'
+        self.config_name = 'microsoft/DialoGPT-small'
+        self.tokenizer_name = 'microsoft/DialoGPT-small'
         self.cache_dir = 'data/cache'
-        self.block_size = 512
+        self.block_size = 256
         self.do_train = True
         self.do_eval = True
         self.evaluate_during_training = False
-        self.per_gpu_train_batch_size = 1
-        self.per_gpu_eval_batch_size = 1
+        self.per_gpu_train_batch_size = 2
+        self.per_gpu_eval_batch_size = 2
         self.gradient_accumulation_steps = 1
         self.learning_rate = 5e-5
         self.weight_decay = 0.0
@@ -24,7 +24,7 @@ class Args():
         self.save_steps = 3500
         self.save_total_limit = None
         self.eval_all_checkpoints = False
-        self.no_cuda = True
+        self.no_cuda = False
         self.overwrite_output_dir = True
         self.overwrite_cache = True
         self.should_continue = False
@@ -32,5 +32,5 @@ class Args():
         self.local_rank = -1
         self.fp16 = False
         self.fp16_opt_level = 'O1'
-        self.device = 'cpu' # or 'cuda' for GPU
-        self.n_gpu = 1 
+        self.device = 'cuda:3' # or 'cuda' for GPU
+        self.n_gpu = 1

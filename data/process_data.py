@@ -1,5 +1,5 @@
 import io
-import os 
+import os
 import json
 from tqdm import tqdm
 import pandas as pd
@@ -27,8 +27,8 @@ def json_to_df(conversation, target_name, df):
     # Ignore groupchats
     if len(conversation.get('participants', [])) > 2:
         return df
-    
-    talking_to = conversation['participants'][0]['name'] 
+
+    talking_to = conversation['participants'][0]['name']
     message = ''
     response = ''
     for text in reversed(conversation.get('messages')):
@@ -53,7 +53,7 @@ def json_to_df(conversation, target_name, df):
                 if len(message) > 0:
                     text['content'] = ' ' + text['content']
                 message += text['content']
-        
+
     return df
 
 def process_data(data_dir='data/inbox', target='Yoni Friedman', outfile='data/data_clean.csv', overwrite=False):
@@ -70,5 +70,5 @@ def process_data(data_dir='data/inbox', target='Yoni Friedman', outfile='data/da
 
     print(df.info(), '\nExample record:', df['response'][6])
     df.to_csv(outfile)
-    
+
     return df

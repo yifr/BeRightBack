@@ -5,3 +5,5 @@ __pycache__
 */__pycache__
 data/cache
 venv/*
+fine-tuned/*
+runs/*
