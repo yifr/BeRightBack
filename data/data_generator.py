@@ -3,8 +3,11 @@ import numpy as np
 import logging
 import pickle
 import torch
+from data import process_data
 from torch.utils.data import Dataset
 from transformers import AutoTokenizer
+from sklearn.model_selection import train_test_split
+ 
 logger = logging.getLogger(__name__)
 
 
@@ -52,3 +55,11 @@ class Conversations(Dataset):
 
     def __getitem__(self, index):
         return torch.tensor(self.records[index], dtype=torch.long)
+
+def get_train_test(tokenizer, args, data_dir='data/inbox', target='Yoni Friedman'):
+    all_data = process_data.process_data(data_dir=data_dir, target=target)
+    train_df, test_df = train_test_split(all_data, test_size=0.2)
+    train_features = Conversations(train_df, tokenizer, args)
+    test_features = Conversations(test_df, tokenizer, args)
+
+    return train_features, test_features
